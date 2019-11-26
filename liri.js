@@ -3,8 +3,19 @@ var keys = require("./keys.js");
 var inquirer = require("inquirer");
 var axios = require("axios");
 var Spotify = require("node-spotify-api");
+var read = require("read-file");
 
 var convertedUserInput = [];
+
+function readtext() {
+  read("random.txt", "utf8", function(err, data) {
+    if (err) throw err;
+    var text = data.split(",");
+    for (var i = 0; i < text.length; i++) {
+      console.log(text[i]);
+    }
+  });
+}
 
 function getMovie() {
   axios
@@ -49,9 +60,7 @@ function searchSpotify() {
     err,
     data
   ) {
-    if (err) {
-      return console.log("Error occurred: " + err);
-    }
+    if (err) throw err;
 
     console.log("Artist: " + data.tracks.items[0].artists[0].name);
     console.log("Song: " + data.tracks.items[0].name);
@@ -75,7 +84,7 @@ inquirer
       : res.selectCommand === "Movie"
       ? movieSearch()
       : res.selectCommand === "Do what it says"
-      ? command()
+      ? readtext()
       : process.exit();
   });
 
@@ -120,17 +129,5 @@ const movieSearch = () => {
       var replaced = str.split(" ").join("+");
       convertedUserInput.push(replaced);
       getMovie();
-    });
-};
-
-const command = () => {
-  inquirer
-    .prompt({
-      type: "input",
-      message: "Enter command here: ",
-      name: "command-name"
-    })
-    .then(res => {
-      console.log("command info");
     });
 };
